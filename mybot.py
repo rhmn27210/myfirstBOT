@@ -27,4 +27,31 @@ async def generate_password(ctx):
 async def flip(ctx):
     await ctx.send(flip_coin())
 
+@bot.command()
+async def rps(ctx):
+    choices = ['✊', '✋', '✌️']  # batu, kertas, gunting
+    bot_choice = random.choice(choices)
+
+    message = await ctx.send("Let's play Rock-Paper-Scissors! React with your choice:")
+    for choice in choices:
+        await message.add_reaction(choice)
+
+    def check(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in choices
+
+    reaction, user = await bot.wait_for('reaction_add', check=check)
+    user_choice = str(reaction.emoji)
+    result = determine_winner(user_choice, bot_choice)
+    await ctx.send(f'You chose {user_choice}, I chose {bot_choice}. {result}')
+
+def determine_winner(user_choice, bot_choice):
+    if user_choice == bot_choice:
+        return "It's a tie!"
+    elif (user_choice == '✊' and bot_choice == '✌️') or \
+         (user_choice == '✋' and bot_choice == '✊') or \
+         (user_choice == '✌️' and bot_choice == '✋'):
+        return "You win! 🎉"
+    else:
+        return "I win! 😎"
+
 bot.run()
